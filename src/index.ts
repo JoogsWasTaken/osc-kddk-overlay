@@ -63,6 +63,10 @@ interface AnnotatedTokenValue<T> {
     lastUpdated: number;
 }
 
+const newAnnotatedTokenValue = <T>(value: T): AnnotatedTokenValue<T> => {
+    return { value, lastUpdated: 0 };
+}
+
 const clientSize = {
     realW: config.clientWidth,
     realH: config.clientHeight,
@@ -74,22 +78,10 @@ const clientSize = {
 
 const gameState = {
     status: SCOsuStatus.Null,
-    keyLeftKat: <AnnotatedTokenValue<number>>{
-        value: 0,
-        lastUpdated: 0
-    },
-    keyRightKat: <AnnotatedTokenValue<number>>{
-        value: 0,
-        lastUpdated: 0
-    },
-    keyLeftDon: <AnnotatedTokenValue<number>>{
-        value: 0,
-        lastUpdated: 0
-    },
-    keyRightDon: <AnnotatedTokenValue<number>>{
-        value: 0,
-        lastUpdated: 0
-    },
+    keyLeftKat: newAnnotatedTokenValue(0),
+    keyRightKat: newAnnotatedTokenValue(0),
+    keyLeftDon: newAnnotatedTokenValue(0),
+    keyRightDon: newAnnotatedTokenValue(0),
     isPlaying: () => gameState.status == SCOsuStatus.Playing,
 }
 
