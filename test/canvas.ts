@@ -1,7 +1,7 @@
 import { expect } from "chai";
 import { convertCSSColorToString } from "../src/canvas";
 
-describe("canvas", () => {
+describe("convertCSSColorToString", () => {
     it("should convert RGB values into CSS strings", () => {
         expect(convertCSSColorToString({
             r: 50,
