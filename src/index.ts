@@ -30,11 +30,13 @@ const reloadBackgroundImage = () => {
     bgImg.src = getBackgroundImageUrl();
 }
 
+// this is called when the background image element has triggered the "load" event
 const onBackgroundImageLoaded = () => {
     const w = bgCanvas.width, h = bgCanvas.height;
     const bgW = bgImg.width, bgH = bgImg.height;
     const bgW2 = bgW / 2, bgH2 = bgH / 2;
 
+    // the factor of 1.1 is to avoid white borders
     const imgScale = Math.max(w / bgW, h / bgH) * 1.1;
 
     bgCtx.save();
@@ -46,6 +48,7 @@ const onBackgroundImageLoaded = () => {
     bgCtx.restore();
 }
 
+// this is called when the background image element has triggered the "error" event
 const onBackgroundImageError = () => {
     log("no background image present");
 
@@ -55,6 +58,7 @@ const onBackgroundImageError = () => {
 
 bgImg.addEventListener("load", onBackgroundImageLoaded);
 bgImg.addEventListener("error", onBackgroundImageError);
+// this handler is registered bc on a resize, the canvas is cleared/stuck so the background canvas needs to be rerendered
 window.addEventListener("resize", onBackgroundImageLoaded);
 
 // set up global state vars
@@ -63,10 +67,14 @@ interface AnnotatedTokenValue<T> {
     lastUpdated: number;
 }
 
+// just a cleaner way to express { value: x, lastUpdated: 0 }
 const newAnnotatedTokenValue = <T>(value: T): AnnotatedTokenValue<T> => {
     return { value, lastUpdated: 0 };
 }
 
+/**
+ * Variables related to the game client size and its position on the browser canvas.
+ */
 const clientSize = {
     realW: config.clientWidth,
     realH: config.clientHeight,
@@ -76,6 +84,9 @@ const clientSize = {
     offsetY: 0
 }
 
+/**
+ * Variables related to the state that the game client is currently in.
+ */
 const gameState = {
     status: SCOsuStatus.Null,
     keyLeftKat: newAnnotatedTokenValue(0),
@@ -85,6 +96,9 @@ const gameState = {
     isPlaying: () => gameState.status == SCOsuStatus.Playing,
 }
 
+/**
+ * Variables related to the currently selected map in the game client.
+ */
 const mapData = {
     artist: "",
     title: "",
@@ -179,18 +193,21 @@ const colorGoodGreen: CSSColor = { r: 82, g: 255, b: 21 };
 const colorGreatBlue: CSSColor = { r: 55, g: 194, b: 255 };
 const colorMissRed: CSSColor = { r: 255, g: 102, b: 47 };
 
-const laneTopPct = .28148;
-const laneBottomPct = .54166;
-
 const fontName = "display";
 
+// this is for rendering everything around the gameplay area (scaled client dimensions)
 const renderTaiko = (w: number, h: number) => {
+    // % of the client height to reach the top and the bottom of the playfield
+    // TODO does this hold for all aspect ratios?
+    const laneTopPct = .28148;
+    const laneBottomPct = .54166;
+
     const laneTop = h * laneTopPct, laneBottom = h * laneBottomPct;
     const now = performance.now();
 
     // render the keys
     (() => {
-        const w2 = w / 2, w4 = w / 4;
+        const w4 = w / 4;
         const colors = [ colorKatBlue, colorDonRed, colorDonRed, colorKatBlue ];
         const timestamps = [ gameState.keyLeftKat.lastUpdated, gameState.keyLeftDon.lastUpdated, gameState.keyRightDon.lastUpdated, gameState.keyRightKat.lastUpdated ];
 
@@ -234,11 +251,13 @@ const renderTaiko = (w: number, h: number) => {
     ctx.fillRect(0, laneTop, w, laneBottom - laneTop);
 }
 
+// this is for rendering the whole canvas
 const render = (w: number, h: number) => {
     ctx.fillStyle = convertCSSColorToString(colorBlack);
     ctx.fillRect(0, 0, w, h);
 
     if (gameState.isPlaying()) {
+        // draw the background to the gameplay window (if the client is currently in a playing state, otherwise this is all black)
         ctx.drawImage(bgCanvas, clientSize.offsetX, clientSize.offsetY, clientSize.scaledW, clientSize.scaledH,
             clientSize.offsetX, clientSize.offsetY, clientSize.scaledW, clientSize.scaledH);
 
@@ -248,14 +267,17 @@ const render = (w: number, h: number) => {
         ctx.restore();
     }
 
+    // or rather is the client wider than the current browser window?
     const isClientSlim = clientSize.offsetX > 0;
 
     if (isClientSlim) {
+        // if the client is wider than the browser window, then the parts above and below the playfield must be filled in
         ctx.drawImage(bgCanvas, 0, 0, clientSize.offsetX, clientSize.scaledH, 
             0, 0, clientSize.offsetX, clientSize.scaledH);
         ctx.drawImage(bgCanvas, clientSize.offsetX + clientSize.scaledW, 0, clientSize.offsetX, clientSize.scaledH,
             clientSize.offsetX + clientSize.scaledW, 0, clientSize.offsetX, clientSize.scaledH);
     } else {
+        // if the client is slimmer than the browser window, then the parts to the right and left of the playfield must be filled in
         ctx.drawImage(bgCanvas, 0, 0, clientSize.scaledW, clientSize.offsetY, 
             0, 0, clientSize.scaledW, clientSize.offsetY);
         ctx.drawImage(bgCanvas, 0, clientSize.offsetY + clientSize.scaledH, clientSize.scaledW, clientSize.offsetY, 
