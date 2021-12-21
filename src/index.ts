@@ -3,11 +3,14 @@ import ReconnectingWebSocket from "reconnecting-websocket";
 
 import { colorBlack, colorWhite, convertCSSColorToString, createFullScreenAutoResizingCanvas, CSSColor, doRenderLoop, fillCenteredText, setFont } from "./canvas";
 import { createSCWebsocket, getBackgroundImageUrl, getKeyToken, SCOsuStatus, SCToken, SCWebsocketTokenChangedHandler, splitLocationPath } from "./overlay";
-import { config } from "./config";
 import { calcAttackDecay } from "./math";
 
-if (config.debug) {
-    localStorage.debug = "osc:*";
+const config = {
+    debug: true,
+    clientWidth: 1920,
+    clientHeight: 1080,
+    keyAttack: 10,
+    keyDecay: 390
 }
 
 const log = debug("osc:kddk");
@@ -286,21 +289,31 @@ const render = (w: number, h: number) => {
 }
 
 const main = () => {
-    log("loading web font...");
+    fetch("config.json").then((r) => r.json()).then((loadedConfig) => {
+        // load in the custom config variables
+        Object.assign(config, loadedConfig);
+        
+        if (config.debug) {
+            localStorage.debug = "osc:*";
+        }
 
-    new FontFace(fontName, "url(static/font/display.ttf)").load().then((font) => {
-        document.fonts.add(font);
+        log("successfully loaded config %O", config);
+        log("loading web font...");
 
-        log("connecting to websocket server and starting render loop...");
-        socket = createSCWebsocket([
-            SCToken.Artist, SCToken.Title, SCToken.Difficulty, SCToken.Creator, SCToken.Status, SCToken.BackgroundImageLocation,
-            tokenLeftKat, tokenLeftDon, tokenRightDon, tokenRightKat,
-        ], handleTokenChanged);
-    
-        doRenderLoop(render);
-    }).catch((err) => {
-        log("couldn't load web font %O", err);
-    });
+        new FontFace(fontName, "url(static/font/display.ttf)").load().then((font) => {
+            document.fonts.add(font);
+
+            log("connecting to websocket server and starting render loop...");
+            socket = createSCWebsocket([
+                SCToken.Artist, SCToken.Title, SCToken.Difficulty, SCToken.Creator, SCToken.Status, SCToken.BackgroundImageLocation,
+                tokenLeftKat, tokenLeftDon, tokenRightDon, tokenRightKat,
+            ], handleTokenChanged);
+        
+            doRenderLoop(render);
+        }).catch((err) => {
+            log("couldn't load web font %O", err);
+        });
+    }).catch(console.error);
 }
 
 main();
