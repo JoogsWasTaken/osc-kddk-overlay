@@ -60,8 +60,6 @@ export const createFullScreenAutoResizingCanvas = (): [HTMLCanvasElement, Canvas
     document.body.insertBefore(canvas, document.body.firstChild);
     window.addEventListener("resize", resizeCanvasToWindow.bind(resizeCanvasToWindow, canvas));
 
-    ctx.textAlign
-
     resizeCanvasToWindow(canvas);
 
     return [canvas, ctx];
