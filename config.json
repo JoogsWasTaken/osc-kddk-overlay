@@ -1,8 +1,8 @@
 {
-    "debug": true,
     "clientWidth": 1366,
     "clientHeight": 854,
+    "debug": true,
+    "fontFileName": "display.ttf",
     "keyAttack": 10,
-    "keyDecay": 390,
-    "fontFileName": "display.ttf"
+    "keyDecay": 390
 }
