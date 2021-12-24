@@ -3,5 +3,6 @@
     "clientWidth": 1366,
     "clientHeight": 854,
     "keyAttack": 10,
-    "keyDecay": 390
+    "keyDecay": 390,
+    "fontFileName": "display.ttf"
 }

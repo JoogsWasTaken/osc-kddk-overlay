@@ -10,7 +10,8 @@ const config = {
     clientWidth: 1920,
     clientHeight: 1080,
     keyAttack: 10,
-    keyDecay: 390
+    keyDecay: 390,
+    fontFileName: "display.ttf"
 }
 
 const log = debug("osc:kddk");
@@ -196,7 +197,8 @@ const colorGoodGreen: CSSColor = { r: 82, g: 255, b: 21 };
 const colorGreatBlue: CSSColor = { r: 55, g: 194, b: 255 };
 const colorMissRed: CSSColor = { r: 255, g: 102, b: 47 };
 
-const fontName = "display";
+let fontFileName: string = "";
+let fontName: string = "";
 
 // this is for rendering everything around the gameplay area (scaled client dimensions)
 const renderTaiko = (w: number, h: number) => {
@@ -297,10 +299,13 @@ const main = () => {
             localStorage.debug = "osc:*";
         }
 
+        fontFileName = config.fontFileName;
+        fontName = config.fontFileName.substring(0, config.fontFileName.indexOf("."));
+
         log("successfully loaded config %O", config);
         log("loading web font...");
 
-        new FontFace(fontName, "url(static/font/display.ttf)").load().then((font) => {
+        new FontFace(fontName, `url(static/font/${fontFileName})`).load().then((font) => {
             document.fonts.add(font);
 
             log("connecting to websocket server and starting render loop...");
